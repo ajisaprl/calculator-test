@@ -5,8 +5,8 @@ Feature: Test online calculator scenarios
       |value1 | <value1>|
       |value2 | <value2>|
       |operator | <operator>|
-    Then I should be able to see
+    #Then I should be able to see
       |	expected |<expected>|
     Examples:
       | value1  		| value2 		| operator			| expected	|
-      | 	2 			|   2			|		/			| 1         |
+      | 	1 			|   2			|		/			| 1         |
