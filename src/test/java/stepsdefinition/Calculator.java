@@ -1,21 +1,27 @@
 package stepsdefinition;
 
+import com.asprise.ocr.Ocr;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Action;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.io.FileHandler;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.awt.*;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.Map;
+
 
 
 public class Calculator {
@@ -35,7 +41,7 @@ public class Calculator {
     }
 
     @When("^I enter following values and press enter button$")
-    public void iEnterFollowingValuesAndPressEnterButton(DataTable args) throws InterruptedException {
+    public void iEnterFollowingValuesAndPressEnterButton(DataTable args) {
         iframe = driver.findElement(By.id("fullframe"));
         driver.switchTo().frame(iframe);
 
@@ -57,33 +63,35 @@ public class Calculator {
     }
 
     @Then("^I should be able to see$")
-    public void iShouldBeAbleToSee(DataTable result) {
+    public void iShouldBeAbleToSee(DataTable result) throws IOException {
         Map<String, String> expected = result.asMap(String.class, String.class);
         String res = expected.get("expected");
-        canvas = driver.findElement(By.id("canvas"));
 
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-        String pngData = js.executeScript("return arguments[0].toDataURL('/image/png').substring(22);", canvas).toString();
-        System.out.println(pngData);
+        File screenshot = canvas.getScreenshotAs(OutputType.FILE);
+        BufferedImage fullImg = ImageIO.read(screenshot);
 
-        byte[] canvas_png = Base64.getDecoder().decode(pngData);
-        FileOutputStream fos = null;
+        BufferedImage eleScreenshot= fullImg.getSubimage(0, 0, 400, 100);
+        ImageIO.write(eleScreenshot, "png", screenshot);
+
+        File screenshotLocation = new File("/Users/bukalapak/Documents/qa-assessment-xendit/result.png");
+        FileHandler.copy(screenshot, screenshotLocation);
+
+        Ocr.setUp();
+        Ocr ocr = new Ocr();
+        ocr.startEngine("eng", Ocr.SPEED_FASTEST);
+        String scan = ocr.recognize(new File[] {new File("/Users/bukalapak/Documents/qa-assessment-xendit/result.png")},
+                Ocr.RECOGNIZE_TYPE_TEXT, Ocr.OUTPUT_FORMAT_PLAINTEXT);
+        String actual = scan.substring(2,4).replace("*","0");
+
         try {
-            File imgFile = new File("image");
-            fos = new FileOutputStream(imgFile);
-            fos.write(canvas_png);
-        } catch(Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            if (res.equals(actual)) {
+                System.out.println("The result match. Expected: " +res + " Actual: " +actual);
+            } else {
+                throw new Exception();
             }
         }
-
-
+        catch(Exception e) {
+            System.out.println("The result doesn't match! Expected: " +res + " Actual: " +actual);
+        }
     }
 }

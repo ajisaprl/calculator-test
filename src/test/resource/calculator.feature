@@ -9,4 +9,4 @@ Feature: Test online calculator scenarios
       |	expected |<expected>|
     Examples:
       | value1  		| value2 		| operator			| expected	|
-      | 	6 			|   50			|		+			| 12        |
+      | 	15 			|   15			|		+			| 30        |
