@@ -1,6 +1,6 @@
 # Automate Calculator Functionality
 This automation script is using Cucumber Framework and Selenium WebDriver with Java implementation.
-![alt text](https://i.postimg.cc/yNnNCrMk/Screen-Shot-2020-02-24-at-13-46-17.png "result")
+Check the test run result [here](https://drive.google.com/file/d/1n-hWSPHkYF9kYj3FRFlXI97EUlsDjdp4/view)
 
 ## Target URL
 https://www.online-calculator.com/full-screen-calculator/
@@ -18,3 +18,7 @@ We can trean canvas as an image. Thus, the assertion is conducted by:
 
 ## Tesseract Traineddata
 For this case, we can use the provided [eng character traineddata](https://github.com/tesseract-ocr/tessdata/blob/master/eng.traineddata)
+
+## Issues
+1. Unable to perform inverse operation (1/x) because of couldn't find any keys related to that function
+2. Unable to delete character (in test @delete-test) for unknown reason. Both keys BACK_SPACE and DELETE from selenium doesn't do anything
