@@ -1,7 +1,6 @@
 package stepsDefinition;
 
 import cucumber.api.DataTable;
-import cucumber.api.PendingException;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -37,7 +36,7 @@ public class Calculator {
         driver = new ChromeDriver();
         driver.get("https://www.online-calculator.com/full-screen-calculator/");
 
-        WebDriverWait wait = new WebDriverWait(driver, 15);
+        WebDriverWait wait = new WebDriverWait(driver, 20);
         wait.until(webDriver -> ((JavascriptExecutor) driver).executeScript("return document.readyState").toString().equals("complete"));
     }
 
@@ -62,8 +61,14 @@ public class Calculator {
             Action enterValue2 = builder.sendKeys(canvas, v2.get("value2")).build();
             enterValue2.perform();
         } else {
-            Action btn = builder.sendKeys(canvas, op.get("button")).build();
-            btn.perform();
+            String button = op.get("button");
+            if (button.equals("DELETE")) {
+                Action del = builder.sendKeys(canvas, Keys.BACK_SPACE).build();
+                del.perform();
+            } else {
+                Action btn = builder.sendKeys(canvas, button).build();
+                btn.perform();
+            }
         }
     }
 
@@ -71,8 +76,8 @@ public class Calculator {
     public void iShouldBeAbleToSee(DataTable result) throws IOException {
         Map<String, String> expect = result.asMap(String.class, String.class);
         String expected = expect.get("expected");
-        takeScreenShot();
-        assertEquals(expected,recognizeImage());
+        takeScreenShot("result");
+        assertEquals(expected,recognizeImage("result"));
     }
 
     @And("^I press \"([^\"]*)\" button$")
@@ -82,8 +87,11 @@ public class Calculator {
             case "ENTER":
                 builder.sendKeys(canvas, Keys.ENTER).build().perform();
                 break;
-            case "CE":
+            case "C":
                 builder.sendKeys(canvas, "C").build().perform();
+                break;
+            case "DELETE":
+                builder.sendKeys(canvas, Keys.BACK_SPACE).build().perform();
                 break;
             default:
                 break;
@@ -97,17 +105,24 @@ public class Calculator {
 
     @Then("^The result should reset$")
     public void theResultShouldReset() throws IOException {
-        takeScreenShot();
-        assertEquals("0",recognizeImage());
+        takeScreenShot("result");
+        assertEquals("0",recognizeImage("result"));
+        takeScreenShot("button");
+        assertEquals("CE",recognizeImage("button"));
     }
 
-    public String recognizeImage() {
+    public String recognizeImage(String position) {
         Tesseract tesseract = new Tesseract();
         tesseract.setTessVariable("user_defined_dpi", "270");
-        String actual = null;
+        String actual = "";
         try {
+            String scanned;
             tesseract.setDatapath("/Users/bukalapak/Documents/qa-assessment-xendit");
-            String scanned = tesseract.doOCR(new File("result.png"));
+            if (position.equals("result")) {
+                scanned = tesseract.doOCR(new File("result.png"));
+            } else {
+                scanned = tesseract.doOCR(new File("button.png"));
+            }
             actual = scanned.substring(0, scanned.length() - 1);
         } catch (TesseractException e) {
             e.printStackTrace();
@@ -115,14 +130,22 @@ public class Calculator {
         return actual;
     }
 
-    public void takeScreenShot() throws IOException {
+    public void takeScreenShot(String position) throws IOException {
         File screenshot = canvas.getScreenshotAs(OutputType.FILE);
         BufferedImage fullImg = ImageIO.read(screenshot);
+        BufferedImage croppedScreenShot;
+        File screenshotLocation;
 
-        BufferedImage eleScreenshot= fullImg.getSubimage(25, 26, 354, 48);
-        ImageIO.write(eleScreenshot, "png", screenshot);
+        if (position.equals("result")) {
+            croppedScreenShot = fullImg.getSubimage(25, 26, 354, 48);
+            screenshotLocation = new File("result.png");
+        } else {
+            croppedScreenShot = fullImg.getSubimage(330, 128, 50, 50);
+            screenshotLocation = new File("button.png");
+        }
 
-        File screenshotLocation = new File("result.png");
+        ImageIO.write(croppedScreenShot, "png", screenshot);
         FileHandler.copy(screenshot, screenshotLocation);
     }
+
 }
