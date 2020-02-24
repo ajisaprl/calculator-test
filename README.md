@@ -9,7 +9,7 @@ https://www.online-calculator.com/full-screen-calculator/
 Since the application embeded inside canvas, The interaction is performed by keyboard events from [Actions Class in Selenium](https://www.selenium.dev/selenium/docs/api/java/org/openqa/selenium/interactions/Actions.html)
 
 ## Assertion
-We can trean canvas as an image. Thus, the assertion is conducted by:
+We can treat canvas as an image. Thus, the assertion is conducted by:
 1. taking screenshot of the result
 2. Cropping the result image
 3. Save it into local machine
@@ -21,4 +21,4 @@ For this case, we can use the provided [eng character traineddata](https://githu
 
 ## Issues
 1. Unable to perform inverse operation (1/x) because of couldn't find any keys related to that function
-2. Unable to delete character (in test @delete-test) for unknown reason. Both keys BACK_SPACE and DELETE from selenium doesn't do anything
+2. Unable to delete character (in test @delete-test) for unknown reason. Both keys `BACK_SPACE` and `DELETE` from selenium doesn't do anything
