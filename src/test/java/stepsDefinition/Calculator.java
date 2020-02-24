@@ -117,7 +117,6 @@ public class Calculator {
         String actual = "";
         try {
             String scanned;
-            tesseract.setDatapath("/Users/bukalapak/Documents/qa-assessment-xendit");
             if (position.equals("result")) {
                 scanned = tesseract.doOCR(new File("result.png"));
             } else {
