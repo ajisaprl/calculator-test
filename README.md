@@ -18,6 +18,7 @@ We can treat canvas as an image. Thus, the assertion is conducted by:
 
 ## Tesseract Traineddata
 For this case, we can use the provided [eng character traineddata](https://github.com/tesseract-ocr/tessdata/blob/master/eng.traineddata)
+ and place the traineddata to `/usr/local/share/tessdata`
 
 ## Issues
 1. Unable to perform inverse operation (1/x) because of couldn't find any keys related to that function
