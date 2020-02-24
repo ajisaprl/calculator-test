@@ -1,6 +1,7 @@
-package stepsdefinition;
+package stepsDefinition;
 
 import cucumber.api.DataTable;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -12,6 +13,8 @@ import org.openqa.selenium.interactions.Action;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.io.FileHandler;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import static org.junit.Assert.*;
+
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -61,8 +64,8 @@ public class Calculator {
 
     @Then("^I should be able to see$")
     public void iShouldBeAbleToSee(DataTable result) throws IOException {
-        Map<String, String> expected = result.asMap(String.class, String.class);
-        String res = expected.get("expected");
+        Map<String, String> expect = result.asMap(String.class, String.class);
+        String expected = expect.get("expected");
 
         File screenshot = canvas.getScreenshotAs(OutputType.FILE);
         BufferedImage fullImg = ImageIO.read(screenshot);
@@ -75,19 +78,20 @@ public class Calculator {
 
         //OCR
         Tesseract tesseract = new Tesseract();
+        tesseract.setTessVariable("user_defined_dpi", "270");
+        String actual = null;
         try {
             tesseract.setDatapath("/Users/bukalapak/Documents/qa-assessment-xendit");
-            String actual = tesseract.doOCR(new File("/Users/bukalapak/Documents/qa-assessment-xendit/result.png"));
-            String actual2 = actual.substring(0, actual.length() - 1);
-            if (!res.equals(actual2)) {
-                try {
-                    throw new Exception("Actual and excpected not match! Actual: " +actual2+ " Expected: " +res);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+            String scanned = tesseract.doOCR(new File("/Users/bukalapak/Documents/qa-assessment-xendit/result.png"));
+            actual = scanned.substring(0, scanned.length() - 1);
         } catch (TesseractException e) {
             e.printStackTrace();
         }
+        assertEquals(actual,expected);
+    }
+
+    @And("^user close the browser$")
+    public void userCloseTheBrowser() {
+        driver.close();
     }
 }
