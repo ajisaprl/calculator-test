@@ -1,11 +1,11 @@
 package stepsdefinition;
 
-import com.asprise.ocr.Ocr;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import org.apache.commons.lang3.StringUtils;
+import net.sourceforge.tess4j.Tesseract;
+import net.sourceforge.tess4j.TesseractException;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Action;
@@ -15,11 +15,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Base64;
 import java.util.Map;
 
 
@@ -70,28 +67,27 @@ public class Calculator {
         File screenshot = canvas.getScreenshotAs(OutputType.FILE);
         BufferedImage fullImg = ImageIO.read(screenshot);
 
-        BufferedImage eleScreenshot= fullImg.getSubimage(0, 0, 400, 100);
+        BufferedImage eleScreenshot= fullImg.getSubimage(25, 26, 354, 48);
         ImageIO.write(eleScreenshot, "png", screenshot);
 
         File screenshotLocation = new File("/Users/bukalapak/Documents/qa-assessment-xendit/result.png");
         FileHandler.copy(screenshot, screenshotLocation);
 
-        Ocr.setUp();
-        Ocr ocr = new Ocr();
-        ocr.startEngine("eng", Ocr.SPEED_FASTEST);
-        String scan = ocr.recognize(new File[] {new File("/Users/bukalapak/Documents/qa-assessment-xendit/result.png")},
-                Ocr.RECOGNIZE_TYPE_TEXT, Ocr.OUTPUT_FORMAT_PLAINTEXT);
-        String actual = scan.substring(2,4).replace("*","0");
-
+        //OCR
+        Tesseract tesseract = new Tesseract();
         try {
-            if (res.equals(actual)) {
-                System.out.println("The result match. Expected: " +res + " Actual: " +actual);
-            } else {
-                throw new Exception();
+            tesseract.setDatapath("/Users/bukalapak/Documents/qa-assessment-xendit");
+            String actual = tesseract.doOCR(new File("/Users/bukalapak/Documents/qa-assessment-xendit/result.png"));
+            String actual2 = actual.substring(0, actual.length() - 1);
+            if (!res.equals(actual2)) {
+                try {
+                    throw new Exception("Actual and excpected not match! Actual: " +actual2+ " Expected: " +res);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-        }
-        catch(Exception e) {
-            System.out.println("The result doesn't match! Expected: " +res + " Actual: " +actual);
+        } catch (TesseractException e) {
+            e.printStackTrace();
         }
     }
 }
