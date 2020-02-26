@@ -35,6 +35,7 @@ public class Calculator {
         System.setProperty("webdriver.chrome.driver", "/Users/bukalapak/Documents/qa-assessment-xendit/chromedrivertest");
         driver = new ChromeDriver();
         driver.get("https://www.online-calculator.com/full-screen-calculator/");
+        driver.manage().window().maximize();
 
         WebDriverWait wait = new WebDriverWait(driver, 20);
         wait.until(webDriver -> ((JavascriptExecutor) driver).executeScript("return document.readyState").toString().equals("complete"));
@@ -136,10 +137,11 @@ public class Calculator {
         File screenshotLocation;
 
         if (position.equals("result")) {
-            croppedScreenShot = fullImg.getSubimage(25, 26, 354, 48);
+            //this varies based on window resolution
+            croppedScreenShot = fullImg.getSubimage(32, 32, 374, 50);
             screenshotLocation = new File("result.png");
         } else {
-            croppedScreenShot = fullImg.getSubimage(330, 128, 50, 50);
+            croppedScreenShot = fullImg.getSubimage(351, 139, 56, 50);
             screenshotLocation = new File("button.png");
         }
 
